@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**	Player class in Mahjong game. Player class keeps track of one of 4
  * 	players in the game. Each player has a player number, a hand of hidden
@@ -47,6 +48,46 @@ public class Player {
 		hand.offer(t);
 	}
 	
+	/**	Discard a tile prompted by the user
+	 * 	@return	Tile discarded
+	 */
+	public Tile discard() {
+		//	Keep prompting user until valid discard is chosen
+		int discardIndex = -1;
+		boolean isValid = false;
+		while (!isValid) {
+			//	Print hand
+			System.out.println("Your hand:");
+			//	Number the tiles in hand
+			for (int i = 0; i < hand.size(); i++) {
+				System.out.print("   " + i + "    ");
+				if (i < 10)
+				System.out.print(" ");
+			}
+			System.out.println("");
+			printHand();
+			discardIndex = Prompt.getInt("Which tile would you like to discard? (Tiles start from 0)");
+			if (discardIndex >= 0 && discardIndex < hand.size())
+				isValid = true;
+		}
+		
+		//	Discard selected tile
+		//	Create temp array to hold tiles
+		List<Tile> temp = new ArrayList<>();
+		for (int i = 0; i < discardIndex; i++) {
+			temp.add(hand.poll());
+		}
+		//	Discard the actual tile
+		Tile discarded = hand.poll();
+		
+		//	Return temp to hand
+		while (!temp.isEmpty()) {
+			hand.add(temp.remove(0));
+		}
+		
+		return discarded;
+	}
+	
 	/**	Prints hand	*/
 	public void printHand() {
 		Tile.printTileQueue(getHand());
@@ -59,7 +100,6 @@ public class Player {
 	/**	Check if current hand can be winning
 	 * 	Assume shown filled with valid sets
 	 * 	Only call after drawing a card and before discarding
-	 * 	Also used for checking if a discard can be used to win the game
 	 */
 	public boolean hasWon() {
 		//	Create four queues for each suit and move hand into these queues
@@ -125,6 +165,21 @@ public class Player {
 				wanSuit.isWinning(wanSuit.isCountRightPair()) &&
 				specSuit.isWinning(specSuit.isCountRightPair());
 	}
+	/**	Check if with the new tile, the current hand can be winning
+	 * 	Assume shown is filled with valid sets
+	 * 	Call after drawing a tile and before discarding
+	 */
+	public boolean hasWon(Tile finalTile) {
+		//	Store original hand
+		Queue<Tile> originalHand = getHand();
+		//	Draw tile to hand
+		draw(finalTile);
+		//	Check if hand with final tile is winning
+		boolean isWon = hasWon();
+		//	Revert to original hand ("undraw" the tile)
+		hand = originalHand;
+		return isWon;
+	}
 	
 	/*	Check if player can take tile from center	*/
 	/**	Checks if player can KONG the tile being discarded
@@ -145,6 +200,13 @@ public class Player {
 	 * 	@param	Tile to KONG
 	 */
 	public void kong(Tile discard) {
+		//	Announce the kong
+		System.out.println("KONG: Player " + getPlayerNum());
+		try {
+			//	Sleep 1 second
+			TimeUnit.SECONDS.sleep(1);
+		}
+		catch (Exception e) {}
 		Queue<Tile> newHand = new PriorityQueue<>(new TileComparator());
 		//	List of tiles to make into tileSet
 		List<Tile> kongSet = new ArrayList<>();
@@ -159,7 +221,7 @@ public class Player {
 		}
 		//	Replace hand without including tiles used
 		hand = newHand;
-		//	Add new KONG set to shown
+		//	Add new KONG set to shownimport java.util.concurrent.TimeUnit;
 		shown.add(new TileSet(kongSet));
 	}
 	
@@ -181,6 +243,13 @@ public class Player {
 	 * 	@param	Tile to PENG
 	 */
 	public void peng(Tile discard) {
+		//	Announce the peng
+		System.out.println("PENG: Player " + getPlayerNum());
+		try {
+			//	Sleep 1 second
+			TimeUnit.SECONDS.sleep(1);
+		}
+		catch (Exception e) {}
 		Queue<Tile> newHand = new PriorityQueue<>(new TileComparator());
 		//	List of tiles to make into tileSet
 		List<Tile> pengSet = new ArrayList<>();
@@ -218,7 +287,7 @@ public class Player {
 	 */
 	public boolean canChi(Tile discard) {
 		//	If the tile is an honor, it cannot be CHI
-		if (discard.getSuit == Tile.SUIT.SPEC)
+		if (discard.getSuit() == Tile.SUIT.SPEC)
 			return false;
 		//	Check hand for tiles with values 1 and 2 below and above
 		Tile below2 = null;
@@ -267,10 +336,15 @@ public class Player {
 	 * 	Precondition: canChi
 	 * 	@param	Tile to CHI
 	 */
-	public void chi(Tile t1) {
-		//	If the tile is an honor, it cannot be CHI
-		if (discard.getSuit == Tile.SUIT.SPEC)
-			return false;
+	public void chi(Tile discard) {
+		//	Announce the chi
+		System.out.println("CHI: Player " + getPlayerNum());
+		try {
+			//	Sleep 1 second
+			TimeUnit.SECONDS.sleep(1);
+		}
+		catch (Exception e) {}
+		
 		//	Check hand for tiles with values 1 and 2 below and above
 		Tile below2 = null;
 		Tile below1 = null;
@@ -294,19 +368,19 @@ public class Player {
 		Queue<Tile> newHand = new PriorityQueue<>(new TileComparator());
 		while(!hand.isEmpty()) {
 			Tile temp = hand.poll();
-			if (below2 != null && temp.equals(below2)) {
+			if (below2 != null && temp.equals(below2) && !hasBelow2) {
 				hasBelow2 = true;
 				below2 = temp;
 			}
-			else if (below1 != null && temp.equals(below1)) {
+			else if (below1 != null && temp.equals(below1) && !hasBelow1) {
 				hasBelow1 = true;
 				below1 = temp;
 			}
-			else if (above1 != null && temp.equals(above1)) {
+			else if (above1 != null && temp.equals(above1) && !hasAbove1) {
 				hasAbove1 = true;
 				above1 = temp;
 			}
-			else if (above2 != null && temp.equals(above2)) {
+			else if (above2 != null && temp.equals(above2) && !hasAbove2) {
 				hasAbove2 = true;
 				above2 = temp;
 			}
@@ -329,6 +403,77 @@ public class Player {
 			canMiddleChi = true;
 		if (hasAbove1 && hasAbove2)
 			canUpperChi = true;
+		
+		//	Add all set options
+		List<TileSet> chiOptions = new ArrayList<TileSet>();
+		if (canLowerChi)
+			chiOptions.add(new TileSet(below2, discard, below1));
+		if (canMiddleChi)
+			chiOptions.add(new TileSet(below1, discard, above1));
+		if (canUpperChi)
+			chiOptions.add(new TileSet(above1, discard, above2));
+		
+		//	If only one option, automatically add it to shown
+		if (chiOptions.size() == 1) {
+			//	Add set to shown
+			shown.add(chiOptions.get(0));
+			//	Replace hand
+			this.hand = newHand;
+			return;
+		}
+		
+		//	Prompt used for which chi to take if more than one option and player isnt bot
+		//	Message with valid sets
+		
+		int n = 0;
+		//	Keep selection at 0 if is bot, otherwize, let user select
+		int selection = 0;
+		if (!isBot()) {
+			System.out.println("Please choose the sequence you would like to make:\n");
+			for (TileSet set: chiOptions) {
+				System.out.println("Option " + n + ":");
+				for (int i = 1; i <= 5; i++) {
+					set.print(i);
+					System.out.println("");
+				}
+				n++;
+			}
+			//	Get selection from user
+			selection = Prompt.getInt("Which set should be made?", 0, 
+													chiOptions.size());
+		}
+		
+		//	Add selected set to shown
+		shown.add(chiOptions.get(selection));
+		
+		//	Other unused tiles returned to hand
+		//	Reuse booleans to check whether each tile should be added back
+		//	to hand. If null or the added set, it should not be added to hand.
+		hasBelow2 = below2 == null ? false : !chiOptions.get(selection).hasTile(below2);
+		hasBelow1 = below1 == null ? false : !chiOptions.get(selection).hasTile(below1);
+		hasAbove1 = above1 == null ? false : !chiOptions.get(selection).hasTile(above1);
+		hasAbove2 = above2 == null ? false : !chiOptions.get(selection).hasTile(above2);
+		
+		//	Return tiles to new hand
+		if (hasBelow2)
+			newHand.add(below2);
+		if (hasBelow1)
+			newHand.add(below1);
+		if (hasAbove1)
+			newHand.add(above1);
+		if (hasAbove2)
+			newHand.add(above2);
+		//	Replenish hand
+		hand = newHand;
+	}
+	
+	/*	Bot commands	*/
+	/**	Bot discards a card based on sets it can form
+	 * 	TEMPORARILY DISCARDS FIRST CARD
+	 * 	@return	Tile discarded
+	 */
+	public Tile botDiscard() {
+		return hand.poll();
 	}
 	
 	
@@ -344,5 +489,14 @@ public class Player {
 	/**	@return playerNum field variable*/
 	public int getPlayerNum() {
 		return playerNum;
+	}
+	/**	@return whether or not player is bot*/
+	public boolean isBot() {
+		return isBot;
+	}
+	
+	/**	@return whether this player is equal to another	*/
+	public boolean equals(Player other) {
+		return this.getPlayerNum() == other.getPlayerNum();
 	}
 }

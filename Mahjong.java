@@ -109,6 +109,8 @@ public class Mahjong {
 	/*	Field variables	*/
 	//	Deck of tiles to draw from, has a front and back to take from
 	private ArrayDeque<Tile> deck;
+	//	Stack of discarded tiles
+	private Deque<Tile> discardPile;
 	//	Current turn, player index to play
 	private int turn;
 	//	4 Players
@@ -118,14 +120,15 @@ public class Mahjong {
 	/**	No args default constructor */
 	public Mahjong() {
 		//	Initiallize field variables
-		deck = new ArrayDeque<Tile>();
+		deck = new ArrayDeque<>();
+		discardPile = new ArrayDeque<>();
 		players = new Player[4];
 		
 		//	Add all players to player array
 		players[0] = new Player(0, false);
-		players[1] = new Player(2, true);
-		players[2] = new Player(3, true);
-		players[3] = new Player(4, true);
+		players[1] = new Player(1, true);
+		players[2] = new Player(2, true);
+		players[3] = new Player(3, true);
 	}
 	
 	//	Main method
@@ -195,18 +198,223 @@ public class Mahjong {
 	 */
 	private void run() {
 		//	Random starting player
-		turn = (int)(Math.random() * 4);
+		//turn = (int)(Math.random() * 4);
+		turn = 0;
+		
 		//	Remember if a player wins or if game ends in a draw
-		boolean won = false;
-		//	For any type of input including, ready for turn start and yes or no peng, chi, kong, etc.
-		Scanner s = new Scanner(System.in);
+		boolean isGameWon = false;
+		
+		//	Keep track of drawn/discarded tile
+		Tile drawTile = deck.poll();
+		
+		
 		//	Keep game running until player wins or tiles run out
-		while (!won && !deck.isEmpty()) {
+		//	Each loop starts with a discard and ends with a draw
+		while (!isGameWon && !deck.isEmpty()) {
+			//	Current player
+			Player thisPlayer = players[turn];
+			
+			//	If player is not a bot, print their hand and all shown sets
+			if (!thisPlayer.isBot()) {
+				//	Print other players' shown sets
+				for (Player p: players) {
+					if (!p.equals(thisPlayer)) {
+						System.out.println("Player " + p.getPlayerNum() + 
+										"\'s shown tiles:");
+						p.printShown();
+					}
+				}
+				//	Print own shown set
+				System.out.println("\nYour shown tiles:");
+				thisPlayer.printShown();
+			}
+			
+			//	Check if with this 14th tile, the game is won
+			if (drawTile != null && thisPlayer.hasWon(drawTile)) {
+				//	Ask if the player wants to win right now
+				int input = Prompt.getInt("Would you like to win? (0 - NO, 1 - YES)", 0, 1);
+				//	If yes, print winscreen and end the game
+				if (input == 1) {
+					isGameWon = true;
+					printWinScreen(thisPlayer);
+					return;
+				}
+			}
+			
+			//	Take player or bot turn, then update drawTile to discard
+			if (players[turn].isBot()) {
+				drawTile = takeBotTurn(players[turn], drawTile);
+			}
+			else {
+				drawTile = takePlayerTurn(players[turn], drawTile);
+				//	If null is returned, keep drawing from last and taking turns until not null
+				while(drawTile == null)
+					drawTile = takePlayerTurn(players[turn], deck.pollLast());
+			}
+			
+			//	Print discarded tile
+			System.out.println("Tile discarded:");
+			drawTile.print();
+			try {
+				//	Sleep 1 second to simulate others drawing
+				TimeUnit.SECONDS.sleep(1);
+			}
+			catch (Exception e) {}
+			
+			//	Check for KONG, then PENG, then CHI from other players
+			//	If a player decides to PENG, or CHI, drawTile becomes
+			//	null going into the next turn, prompting Player to discard
+			//	If a player decides to KONG, add the shown set, but also draw
+			//	If no action is made, a tile is drawn and turn is incremented
+			
+			//	KONG checks
+			for (Player p: players) {
+				//	If p is a bot and can KONG, do it
+				if (p.canKong(drawTile)) {
+					if (p.isBot()) {
+						p.kong(drawTile);
+						drawTile = null;
+						turn = p.getPlayerNum() - 1;
+						break;
+					}
+					//	Otherwise ask the player if they would like to if it wasn't their turn
+					else if (!p.equals(thisPlayer)) {
+						int input = Prompt.getInt(
+							"Would you like to KONG discarded tile? (0 - NO, 1 - YES)", 0, 1);
+						if (input == 1) {
+							p.kong(drawTile);
+							drawTile = null;
+							turn = p.getPlayerNum() - 1;
+							break;
+						}
+					}
+				}
+			}
+			
+			//	PENG checks if drawTile isn't already null
+			if (drawTile != null)
+				for (Player p: players) {
+					//	If p is a bot and can PENG, do it
+					if (p.canPeng(drawTile)) {
+						if (p.isBot()) {
+							p.peng(drawTile);
+							drawTile = null;
+							turn = p.getPlayerNum() - 1;
+							break;
+						}
+						//	Otherwise ask the player if they would like to if it wasn't their turn
+						else if (!p.equals(thisPlayer)) {
+							int input = Prompt.getInt(
+								"Would you like to PENG discarded tile? (0 - NO, 1 - YES)", 0, 1);
+							if (input == 1) {
+								p.peng(drawTile);
+								drawTile = null;
+								turn = p.getPlayerNum() - 1;
+								break;
+							}
+						}
+					}
+				}
+			
+			//	CHI checks if drawTile isn't already null
+			if (drawTile != null) {
+				Player pNext = players[(turn) % 4];
+				if (pNext.canChi(drawTile)) {
+					//	If player is bot, chi
+					if (pNext.isBot()) {
+						pNext.chi(drawTile);
+						drawTile = null;
+						turn = pNext.getPlayerNum() - 1;
+					}
+					//	Otherwise ask the player if they would like to if it wasn't their turn
+					else if (!pNext.equals(thisPlayer)) {
+						int input = Prompt.getInt(
+							"Would you like to CHI discarded tile? (0 - NO, 1 - YES)", 0, 1);
+						if (input == 1) {
+							pNext.chi(drawTile);
+							drawTile = null;
+							turn = pNext.getPlayerNum() - 1;
+							break;
+						}
+					}
+				}
+			}
+			
+			//	If drawTile still isn't null, add it to discard, and update
+			//	it with a new Tile from the deck
+			if (drawTile != null) {
+				discardPile.push(drawTile);
+				drawTile = deck.poll();
+			}
+			
+			//	Increment turn
+			turn ++;
 			turn %= 4;
 			
+			//	End of turn --
+			//	Player should have taken a tile by PENG, KONG, CHI, or drawing by now
 		}
+		
 		//	Draw message if no winner
-		if (!won)
+		if (!isGameWon)
 			System.out.println("DRAW: Out of tiles");
+	}
+	
+	/**	Prints the discard pile*/
+	private void printDiscard() {
+		Deque<Tile> temp = new ArrayDeque<>(discardPile);
+		while(!temp.isEmpty()) {
+			List<Tile> row = new ArrayList<>(10);
+			int i = 0;
+			while (!temp.isEmpty() && i < 10) {
+				row.add(temp.pop());
+			}
+			Tile.printTileList(row);
+		}
+	}
+	
+	/**	Player takes a turn
+	 * 	@param	Player to take turn
+	 * 	@param	Tile taken, if null, only discard
+	 * 	@return	Tile discarded
+	 */
+	private Tile takePlayerTurn(Player p, Tile t) {
+		//	If tile is null, a PENG KONG or CHI happened, and only discard
+		if (t != null) {
+			//	If player can kong, ask if they want to
+			if (p.canKong(t)) {
+				int input = Prompt.getInt(
+					"Do you want to KONG drawn tile? (0 - NO, 1- YES", 0, 1);
+				//	If player KONG
+				if (input == 1) {
+					p.kong(t);
+					return null;
+				}
+			}
+			//	Add the tile to hand
+			p.draw(t);
+		}
+		
+		//	Discard tile
+		return p.discard();
+	}
+	
+	/**	Bot takes a turn
+	 * 	TEMPORARILY DISCARDS DRAWN TILE OR RANDOMY DISCARDS IF NULL
+	 *	@param	Bot to take turn
+	 * 	@param	Tile taken, if null, only discard
+	 * 	@return til discarded
+	 */
+	private Tile takeBotTurn(Player p, Tile t) {
+		if (t != null)
+			return t;
+		return p.botDiscard();
+	}
+	
+	/**	Prints the winscreen for the winning player	
+	 * 	@param	Player who won
+	 */
+	private void printWinScreen(Player winner) {
+		
 	}
 }	

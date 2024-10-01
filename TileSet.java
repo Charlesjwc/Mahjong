@@ -8,7 +8,7 @@ import java.util.*;
  */
 public class TileSet {
 	/*	Field variables	*/
-	//	In the case of chi, t1 is smallets, t3 is biggest
+	//	In the case of chi, t2 is the taken discard
 	private Tile t1;
 	private Tile t2;
 	private Tile t3;
@@ -86,5 +86,14 @@ public class TileSet {
 		t3.print(layer);
 		if (setType == SET_TYPE.KONG)
 			t4.print(layer);
+	}
+	
+	/**	Return whether this set contains a certain tile
+	 * 	@param	Tile to check for
+	 * 	@return	Whether the set contains the tile
+	 */
+	public boolean hasTile(Tile t) {
+		return t.equals(t1) || t.equals(t2) || t.equals(t3);
+		//	No need to check t4, as it will be the same as other tiles if not null
 	}
 }

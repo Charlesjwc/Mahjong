@@ -8,10 +8,28 @@ import java.util.*;
  */
 public class Tester {
 	public static void main(String[] args) {
+		/*	Test discard */
+		Player p3 = new Player(3, false);
+		p3.draw(new Tile(Tile.SUIT.WAN, 1));
+		p3.draw(new Tile(Tile.SUIT.WAN, 2));
+		p3.draw(new Tile(Tile.SUIT.WAN, 3));
+		p3.draw(new Tile(Tile.SUIT.WAN, 4));
+		p3.draw(new Tile(Tile.SUIT.WAN, 5));
+		p3.draw(new Tile(Tile.SUIT.WAN, 6));
+		p3.draw(new Tile(Tile.SUIT.WAN, 7));
+		p3.draw(new Tile(Tile.SUIT.WAN, 8));
+		p3.draw(new Tile(Tile.SUIT.WAN, 8));
+		p3.draw(new Tile(Tile.SUIT.WAN, 9));
+		
+		p3.discard().print();
+		p3.printHand();
+		
+		
+		/*	Test Kong and CHI methods
 		Player p2 = new Player(2, false);
 		p2.draw(new Tile(Tile.SUIT.WAN, 4));
 		p2.draw(new Tile(Tile.SUIT.TIAO, 5));
-		p2.draw(new Tile(Tile.SUIT.WAN, 4));
+		p2.draw(new Tile(Tile.SUIT.WAN, 3));
 		p2.draw(new Tile(Tile.SUIT.WAN, 4));
 		p2.draw(new Tile(Tile.SUIT.WAN, 5));
 		p2.draw(new Tile(Tile.SUIT.WAN, 6));
@@ -26,11 +44,17 @@ public class Tester {
 		System.out.println(p2.canChi(new Tile("WAN5")));
 		System.out.println(p2.canChi(new Tile("WAN4")));
 		System.out.println(p2.canChi(new Tile("WAN3")));
+		System.out.println(p2.canChi(new Tile("WAN2")));
+		System.out.println(p2.canChi(new Tile("WAN1")));
 		
 		p2.kong(new Tile("SPEC1"));
+		p2.chi(new Tile("WAN5"));
 		p2.printShown();
 		p2.printHand();
-		/*
+		*/
+		
+		
+		/*	Test player hasWon() method
 		Player p1 = new Player(1, false);
 		p1.draw(new Tile(Tile.SUIT.TONG, 1));
 		p1.draw(new Tile(Tile.SUIT.TONG, 2));
@@ -50,7 +74,7 @@ public class Tester {
 		System.out.print(p1.hasWon());
 		*/
 		
-		/**
+		/*	Test handsuit isWinning() method
 		Queue<Tile> hand1 = new PriorityQueue<>(new TileComparator());
 		hand1.add(new Tile(Tile.SUIT.TONG, 1));
 		hand1.add(new Tile(Tile.SUIT.TONG, 2));
