@@ -53,22 +53,25 @@ public class Player {
 	 */
 	public Tile discard() {
 		//	Keep prompting user until valid discard is chosen
-		int discardIndex = -1;
-		boolean isValid = false;
-		while (!isValid) {
-			//	Print hand
-			System.out.println("Your hand:");
-			//	Number the tiles in hand
-			for (int i = 0; i < hand.size(); i++) {
-				System.out.print("   " + i + "    ");
-				if (i < 10)
+		int discardIndex = 0;
+		//	Print hand
+		System.out.println("\n\nYour hand:");
+		//	Number the tiles in hand
+		for (int i = 0; i < hand.size(); i++) {
+			System.out.print("   " + i + "    ");
+			if (i < 10)
 				System.out.print(" ");
-			}
-			System.out.println("");
-			printHand();
-			discardIndex = Prompt.getInt("Which tile would you like to discard? (Tiles start from 0)");
-			if (discardIndex >= 0 && discardIndex < hand.size())
-				isValid = true;
+		}
+		System.out.println("");
+		printHand();
+		//	Get selection from user
+		System.out.println("");
+		discardIndex = Prompt.getInt("Which tile would you like to discard? "
+				+ "(Tiles start from 0)", -1, hand.size() - 1);
+		
+		if (discardIndex == -1) {
+			System.out.println("\nPROGRAM EXITED\n");
+			System.exit(0);
 		}
 		
 		//	Discard selected tile

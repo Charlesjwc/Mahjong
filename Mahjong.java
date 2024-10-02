@@ -4,8 +4,9 @@ import java.util.concurrent.TimeUnit;
 /** Chinese Mahjong 13 tiles game that runs in Powershell. This version
  * 	doesn not count score or use flower cards.
  * 
- * 	@author	Charles Chang
- * 	@since	22 September 2024
+ * 	@author		Charles Chang
+ * 	@since		22 September 2024
+ * 	@version	0.1
  * 
  * 	There are 4 players, each with 13 tiles. Each turn, a player draws a
  * 	tile and discards a tile. If after drawing, a player has 4 sets of 3
@@ -134,9 +135,116 @@ public class Mahjong {
 	//	Main method
 	public static void main(String[] args) {
 		Mahjong game = new Mahjong();
+		game.printStartMenu();
 		game.setup();
 		game.run();
 		
+	}
+	
+	/**	Prints the main menu of the game
+	 * 	Print MAHJONG game name
+	 * 	Include rules, and how to play on powershell version
+	 * 	Ask player if ready to continue before going to setup
+	 */
+	private void printStartMenu() {
+		try {
+			//	Slide title up
+			for (int i = 0; i < 50; i++) {
+				//	Pause 1 millisecond
+				Thread.sleep(20);
+				System.out.println("\n");
+			}
+		}
+		catch (Exception e) {}
+		
+		//	Prints name, all \ replaced by \\ escape character
+		System.out.println(" .----------------.  .----------------.  .----------------.  .----------------.  .----------------.  .-----------------. .----------------. ");
+		System.out.println("| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |");
+		System.out.println("| | ____    ____ | || |      __      | || |  ____  ____  | || |     _____    | || |     ____     | || | ____  _____  | || |    ______    | |");
+		System.out.println("| ||_   \\  /   _|| || |     /  \\     | || | |_   ||   _| | || |    |_   _|   | || |   .'    `.   | || ||_   \\|_   _| | || |  .' ___  |   | |");
+		System.out.println("| |  |   \\/   |  | || |    / /\\ \\    | || |   | |__| |   | || |      | |     | || |  /  .--.  \\  | || |  |   \\ | |   | || | / .'   \\_|   | |");
+		System.out.println("| |  | |\\  /| |  | || |   / ____ \\   | || |   |  __  |   | || |   _  | |     | || |  | |    | |  | || |  | |\\ \\| |   | || | | |    ____  | |");
+		System.out.println("| | _| |_\\/_| |_ | || | _/ /    \\ \\_ | || |  _| |  | |_  | || |  | |_' |     | || |  \\  `--'  /  | || | _| |_\\   |_  | || | \\ `.___]  _| | |");
+		System.out.println("| ||_____||_____|| || ||____|  |____|| || | |____||____| | || |  `.___.'     | || |   `.____.'   | || ||_____|\\____| | || |  `._____.'   | |");
+		System.out.println("| |              | || |              | || |              | || |              | || |              | || |              | || |              | |");
+		System.out.println("| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |");
+		System.out.println(" '----------------'  '----------------'  '----------------'  '----------------'  '----------------'  '----------------'  '----------------' ");
+		
+		try {
+			//	Slide title up
+			for (int i = 0; i < 5; i++) {
+				//	Pause 1 millisecond
+				Thread.sleep(20);
+				System.out.println("\n");
+			}
+			Thread.sleep(1000);
+		}
+		catch (Exception e) {}
+		
+		
+		//	Print welcome message and instructions
+		System.out.println("Welcome to Mahjong 13 Tiles on Powershell JE");
+		
+		//	Instructions for mahjong 13 tiles
+		System.out.println("HOW TO PLAY THIS VERSION:");
+		System.out.println("There are 4 suits of tiles: Tong (Circle), Tiao (Sticks), Wan (Ten thousand), and Honors.");
+		System.out.println("Tong is represented by O, Tiao by |, and Wan by K. These tiles go from 1 - 9");
+		System.out.println("Because all 7 Honors are unique, they each have their own symbol:");
+		System.out.println("N for North, E for East, S for South, W for West, R for Red Dragon, G for Green Dragon, B for Blank Dragon");
+		System.out.println("Here is what each tile looks like:\n");
+		printAllTiles();
+		System.out.println("\nThe goal of the of the game is to make sets of 3 tiles. They can be 3 of a kind or 3 in sequence");
+		System.out.println("A three of a kind would be 3 identical tiles. 3 tiles in a sequence also has to be of the same suit.");
+		System.out.println("To win, you must achieve a winning hand of 4 sets and one pair, with the pair being 2 identical tiles.\n");
+		
+		System.out.println("Every turn you will be drawing 1 tile then discarding 1 tile.");
+		System.out.println("Usually this will be from the deck, and the discarded tile will go to the discard pile.");
+		System.out.println("However, if another player discards a Tile that would complete a 3 of a kind, you may PENG.");
+		System.out.println("If another player discards a Tile that would complete a 4 of a kind, you may KONG.");
+		System.out.println("If the player before you discards a tile that would complete a sequence of 3 tiles, you may CHI.");
+		System.out.println("When you PENG, KONG, or CHI, you take the discarded tile instead of drawing from the deck.");
+		System.out.println("The set you made then goes from your hand to your shown tiles. There, they can't be discarded or used to form other sets");
+		System.out.println("The game will prompt you whether or not you can PENG, CHI, or KONG.\n");
+		
+		System.out.println("PENG is prioritized over CHI. If a player would like to CHI, but not PENG, and is able to do both,");
+		System.out.println("They will have to decline the PENG first, then accept the CHI prompt");
+		System.out.println("\nAny time you are prompted, you may enter -1 to exit the game.");
+		
+		Prompt.getString("Are you ready to play? (Press ENTER to continue)");
+		
+		try {
+			//	Slide start screen up
+			for (int i = 0; i < 50; i++) {
+				//	Pause 1 millisecond
+				Thread.sleep(20);
+				System.out.println("\n");
+			}
+		}
+		catch (Exception e) {}
+	}
+	
+	/**	Prints all tiles once in order	*/
+	private void printAllTiles() {
+		System.out.println("+-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+");
+		System.out.println("|  1  |  |  2  |  |  3  |  |  4  |  |  5  |  |  6  |  |  7  |  |  8  |  |  9  |");
+		System.out.println("|     |  |     |  |     |  |     |  |     |  |     |  |     |  |     |  |     |");
+		System.out.println("|  O  |  |  O  |  |  O  |  |  O  |  |  O  |  |  O  |  |  O  |  |  O  |  |  O  |");
+		System.out.println("+-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+");
+		System.out.println("+-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+");
+		System.out.println("|  1  |  |  2  |  |  3  |  |  4  |  |  5  |  |  6  |  |  7  |  |  8  |  |  9  |");
+		System.out.println("|     |  |     |  |     |  |     |  |     |  |     |  |     |  |     |  |     |");
+		System.out.println("|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |");
+		System.out.println("+-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+");
+		System.out.println("+-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+");
+		System.out.println("|  1  |  |  2  |  |  3  |  |  4  |  |  5  |  |  6  |  |  7  |  |  8  |  |  9  |");
+		System.out.println("|     |  |     |  |     |  |     |  |     |  |     |  |     |  |     |  |     |");
+		System.out.println("|  K  |  |  K  |  |  K  |  |  K  |  |  K  |  |  K  |  |  K  |  |  K  |  |  K  |");
+		System.out.println("+-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+");
+		System.out.println("+-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+");
+		System.out.println("|     |  |     |  |     |  |     |  |     |  |     |  |     |");
+		System.out.println("|     |  |     |  |     |  |     |  |     |  |     |  |     |");
+		System.out.println("|  N  |  |  E  |  |  S  |  |  W  |  |  R  |  |  G  |  |  B  |");
+		System.out.println("+-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+");
 	}
 	
 	/**	Setup method:
@@ -147,6 +255,8 @@ public class Mahjong {
 	 * 	Each player draws single tile.
 	 */
 	private void setup() {
+		//	Create space
+		System.out.println("\n\n\n\n\n\n\n");
 		//	Set up deck
 		//	Create instance of ALL_TILES as ArrayList
 		List<String> unshuffled = new ArrayList<>();
@@ -203,9 +313,12 @@ public class Mahjong {
 		
 		//	Remember if a player wins or if game ends in a draw
 		boolean isGameWon = false;
+		//	Keep track of winner to celebrate
+		Player winner = null;
 		
 		//	Keep track of drawn/discarded tile
 		Tile drawTile = deck.poll();
+		
 		
 		
 		//	Keep game running until player wins or tiles run out
@@ -214,8 +327,16 @@ public class Mahjong {
 			//	Current player
 			Player thisPlayer = players[turn];
 			
+			
+			/*	Print information	*******************************/
+			
 			//	If player is not a bot, print their hand and all shown sets
 			if (!thisPlayer.isBot()) {
+				//	Create some spearation from previous turns
+				System.out.println("\n\n\n\n");
+				//	Print discards
+				System.out.println("Discards:");
+				printDiscard();
 				//	Print other players' shown sets
 				for (Player p: players) {
 					if (!p.equals(thisPlayer)) {
@@ -225,19 +346,33 @@ public class Mahjong {
 					}
 				}
 				//	Print own shown set
-				System.out.println("\nYour shown tiles:");
+				System.out.println("\n\nYour shown tiles:");
 				thisPlayer.printShown();
 			}
+			
+			//	Print drawn tile if it isn't null and this player isnt a bot
+			if (drawTile != null && !thisPlayer.isBot()) {
+				System.out.println("Drawn tile:");
+				drawTile.print();
+			}
+			
+			
+			/*	Take turn **********************************/
 			
 			//	Check if with this 14th tile, the game is won
 			if (drawTile != null && thisPlayer.hasWon(drawTile)) {
 				//	Ask if the player wants to win right now
-				int input = Prompt.getInt("Would you like to win? (0 - NO, 1 - YES)", 0, 1);
+				thisPlayer.printHand();
+				int input = Prompt.getInt("Would you like to win? (0 - NO, 1 - YES)", -1, 1);
 				//	If yes, print winscreen and end the game
 				if (input == 1) {
 					isGameWon = true;
-					printWinScreen(thisPlayer);
-					return;
+					winner = thisPlayer;
+					break;
+				}
+				else if (input == -1) {
+					System.out.println("\nPROGRAM EXITED\n");
+					System.exit(0);
 				}
 			}
 			
@@ -267,10 +402,27 @@ public class Mahjong {
 			//	If a player decides to KONG, add the shown set, but also draw
 			//	If no action is made, a tile is drawn and turn is incremented
 			
+			//	Check if with this discarded tile, the game is won
+			if (drawTile != null && thisPlayer.hasWon(drawTile)) {
+				//	Ask if the player wants to win right now
+				thisPlayer.printHand();
+				int input = Prompt.getInt("Would you like to win? (0 - NO, 1 - YES)", -1, 1);
+				//	If yes, print winscreen and end the game
+				if (input == 1) {
+					isGameWon = true;
+					winner = thisPlayer;
+					break;
+				}
+				else if (input == -1) {
+					System.out.println("\nPROGRAM EXITED\n");
+					System.exit(0);
+				}
+			}
+			
 			//	KONG checks
 			for (Player p: players) {
 				//	If p is a bot and can KONG, do it
-				if (p.canKong(drawTile)) {
+				if (!p.equals(thisPlayer) && p.canKong(drawTile)) {
 					if (p.isBot()) {
 						p.kong(drawTile);
 						drawTile = null;
@@ -278,14 +430,22 @@ public class Mahjong {
 						break;
 					}
 					//	Otherwise ask the player if they would like to if it wasn't their turn
-					else if (!p.equals(thisPlayer)) {
+					else {
+						//	Print hand before asking
+						p.printHand();
+						System.out.println();
+						//	Get user input
 						int input = Prompt.getInt(
-							"Would you like to KONG discarded tile? (0 - NO, 1 - YES)", 0, 1);
+							"Would you like to KONG discarded tile? (0 - NO, 1 - YES)", -1, 1);
 						if (input == 1) {
 							p.kong(drawTile);
 							drawTile = null;
 							turn = p.getPlayerNum() - 1;
 							break;
+						}
+						else if (input == -1) {
+							System.out.println("\nPROGRAM EXITED\n");
+							System.exit(0);
 						}
 					}
 				}
@@ -294,8 +454,9 @@ public class Mahjong {
 			//	PENG checks if drawTile isn't already null
 			if (drawTile != null)
 				for (Player p: players) {
-					//	If p is a bot and can PENG, do it
-					if (p.canPeng(drawTile)) {
+					//	Check if the player can PENG and if it isn't the one who discarded
+					if (!p.equals(thisPlayer) && p.canPeng(drawTile)) {
+						//	If player is bot, peng
 						if (p.isBot()) {
 							p.peng(drawTile);
 							drawTile = null;
@@ -303,14 +464,22 @@ public class Mahjong {
 							break;
 						}
 						//	Otherwise ask the player if they would like to if it wasn't their turn
-						else if (!p.equals(thisPlayer)) {
+						else {
+							//	Print hand before asking
+							p.printHand();
+							System.out.println();
+							//	Get user input
 							int input = Prompt.getInt(
-								"Would you like to PENG discarded tile? (0 - NO, 1 - YES)", 0, 1);
+								"Would you like to PENG discarded tile? (0 - NO, 1 - YES)", -1, 1);
 							if (input == 1) {
 								p.peng(drawTile);
 								drawTile = null;
 								turn = p.getPlayerNum() - 1;
 								break;
+							}
+							else if (input == -1) {
+								System.out.println("\nPROGRAM EXITED\n");
+								System.exit(0);
 							}
 						}
 					}
@@ -318,7 +487,7 @@ public class Mahjong {
 			
 			//	CHI checks if drawTile isn't already null
 			if (drawTile != null) {
-				Player pNext = players[(turn) % 4];
+				Player pNext = players[(turn + 1) % 4];
 				if (pNext.canChi(drawTile)) {
 					//	If player is bot, chi
 					if (pNext.isBot()) {
@@ -327,14 +496,21 @@ public class Mahjong {
 						turn = pNext.getPlayerNum() - 1;
 					}
 					//	Otherwise ask the player if they would like to if it wasn't their turn
-					else if (!pNext.equals(thisPlayer)) {
+					else {
+						//	Print hand before asking
+						pNext.printHand();
+						System.out.println();
+						//	Get user input
 						int input = Prompt.getInt(
-							"Would you like to CHI discarded tile? (0 - NO, 1 - YES)", 0, 1);
+							"Would you like to CHI discarded tile? (0 - NO, 1 - YES)", -1, 1);
 						if (input == 1) {
 							pNext.chi(drawTile);
 							drawTile = null;
 							turn = pNext.getPlayerNum() - 1;
-							break;
+						}
+						else if (input == -1) {
+							System.out.println("\nPROGRAM EXITED\n");
+							System.exit(0);
 						}
 					}
 				}
@@ -353,23 +529,45 @@ public class Mahjong {
 			
 			//	End of turn --
 			//	Player should have taken a tile by PENG, KONG, CHI, or drawing by now
+			System.out.println("\n\n\n\n\n\n\n\n\n\n");
 		}
+		
 		
 		//	Draw message if no winner
 		if (!isGameWon)
 			System.out.println("DRAW: Out of tiles");
+		
+		
+		/*	Print all hands, shown, and discard		*/
+		//	Start with discard
+		System.out.println("\nDiscard:");
+		printDiscard();
+		//	Print each players shown then hands
+		for (Player p: players) {
+			System.out.println("Player " + p.getPlayerNum() + "'s shown");
+			p.printShown();
+			System.out.println("Player " + p.getPlayerNum() + "'s hand");
+			p.printHand();
+		}
+		//	Print out winner
+		System.out.println("WINNER: Player " + winner.getPlayerNum() + "!");
 	}
 	
 	/**	Prints the discard pile*/
 	private void printDiscard() {
+		//	Copy discard
 		Deque<Tile> temp = new ArrayDeque<>(discardPile);
+		//	Go through all elements
 		while(!temp.isEmpty()) {
+			//	Create rows of 10
 			List<Tile> row = new ArrayList<>(10);
 			int i = 0;
 			while (!temp.isEmpty() && i < 10) {
 				row.add(temp.pop());
+				i++;
 			}
 			Tile.printTileList(row);
+			System.out.println("");
 		}
 	}
 	
@@ -384,11 +582,15 @@ public class Mahjong {
 			//	If player can kong, ask if they want to
 			if (p.canKong(t)) {
 				int input = Prompt.getInt(
-					"Do you want to KONG drawn tile? (0 - NO, 1- YES", 0, 1);
+					"Do you want to KONG drawn tile? (0 - NO, 1- YES", -1, 1);
 				//	If player KONG
 				if (input == 1) {
 					p.kong(t);
-					return null;
+					return takePlayerTurn(p, deck.poll());
+				}
+				else if (input == -1) {
+					System.out.println("\nPROGRAM EXITED\n");
+					System.exit(0);
 				}
 			}
 			//	Add the tile to hand
@@ -415,6 +617,6 @@ public class Mahjong {
 	 * 	@param	Player who won
 	 */
 	private void printWinScreen(Player winner) {
-		
+		System.out.println("\nPlayer " + winner.getPlayerNum() + " wins!");
 	}
 }	
