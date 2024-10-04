@@ -1,3 +1,5 @@
+Independent programming project 100% in Java and run 100% on powershell.
+
 HOW TO RUN - Mahjong 13 Tiles on Powershell JE:
 Version 0.9 - Mahjong game with no Computer opponent algorithms
 
