@@ -12,6 +12,7 @@ Instructions are in game.
 In order to run the program, open up windows Powershell, than navigate to the file containing the java files.
 The game can be compiled and run with a regular compile and execute command.
 All dependencies are within the file. The main method is in Mahjong.java.
+
 Compile command:
 javac *.java
 
